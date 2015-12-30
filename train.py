@@ -79,9 +79,12 @@ def train(V, c, yy):
     prob = svmutil.svm_problem(y,x)
     param = svmutil.svm_parameter('-e 0.01')
     m = svmutil.svm_train(prob,param)
+    svmutil.svm_save_model('sample.model',m)
     p_label, p_acc, p_val = svmutil.svm_predict(y, x, m, '')
-    print(p_label)
-    print(len(x),len(x[0]))
+    print(len(y))
+    return m
+
+
 
 
 trialdata = 'AffectiveText.Semeval.2007/AffectiveText.trial/affectivetext_trial.xml'
@@ -92,11 +95,11 @@ testemo = 'AffectiveText.Semeval.2007/AffectiveText.test/affectivetext_test.emot
 testvalence = 'AffectiveText.Semeval.2007/AffectiveText.test/affectivetext_test.valence.gold'
 finaltrial = 'AffectiveText.Semeval.2007/AffectiveText.trial/finalTrial.txt'
 finaltest = 'AffectiveText.Semeval.2007/AffectiveText.test/finalTest.txt'
-obj = xml.parse(testdata)
-target = open(finaltest, 'w')
+obj = xml.parse(trialdata)
+target = open(finaltrial, 'w')
 target.write('A\tanger\tdisgust\tfear\tjoy\tsadness\tsurprise\tval')
 target.write('\n')
-with open(testemo, 'r') as f, open(trialvalence, 'r') as g:
+with open(trialemo, 'r') as f, open(trialvalence, 'r') as g:
     r = csv.reader(f, delimiter=' ')
     s = csv.reader(g, delimiter=' ')
     i = 0
@@ -105,6 +108,7 @@ with open(testemo, 'r') as f, open(trialvalence, 'r') as g:
         target.write('\t'.join(str))
         target.write('\n')
         i += 1
-# M, D = feature()
-# y = [t[6] for t in D]
-# train(M, 6, y)
+target.close()
+M, D = feature()
+y = [t[6] for t in D]
+train(M, 6, y)
