@@ -1,12 +1,12 @@
 import csv
 import urllib.request as get
+
 import numpy as np
 import untangle as xml
+
 import lsa
-import tensorflow as tf
-from tensorflow.examples.tutorials.mnist import input_data
-import svm
 import svmutil
+import test
 
 
 def feature():
@@ -36,27 +36,10 @@ def feature():
     p = [i for i, e in enumerate(occurence[0]) if e != 0]
     U_, V_ = lsa.compute(occurence, 100)
     V_ = np.transpose(V_)
-    return V_, dataMatrix
-
-def test(terms):
-    dataMatrix = np.genfromtxt(finalTest,delimiter='\t',dtype=None,skip_header=True)
-    l = len(terms)
-    occurence = np.zeros((l, n), dtype=np.int)
-    d = 0
-    for row in dataMatrix:
-        temp = row[0].decode('UTF-8').split(' ')
-        for i in range(l):
-            if terms[i] in temp:
-                occurence[i][d] = 1
-        d += 1
-
-    p = [i for i, e in enumerate(occurence[0]) if e != 0]
-    U_, V_ = lsa.compute(occurence, 100)
-    V_ = np.transpose(V_)
-    return V_
+    return V_, dataMatrix, terms
 
 
-def train(V, c, yy):
+def train(V, yy):
     # n = V.shape[1]
     # x = tf.placeholder(tf.float32,[None,n])
     # W = tf.Variable(tf.zeros([n, c]))
@@ -76,15 +59,13 @@ def train(V, c, yy):
     y = [1 if t > 0 else 0 for t in yy]
 
     print(x[0])
-    prob = svmutil.svm_problem(y,x)
+    prob = svmutil.svm_problem(y, x)
     param = svmutil.svm_parameter('-e 0.01')
-    m = svmutil.svm_train(prob,param)
-    svmutil.svm_save_model('sample.model',m)
-    p_label, p_acc, p_val = svmutil.svm_predict(y, x, m, '')
-    print(len(y))
+    m = svmutil.svm_train(prob, param)
+    svmutil.svm_save_model('sample.model', m)
+    # p_label, p_acc, p_val = svmutil.svm_predict(y, x, m, '')
+    # print(len(y))
     return m
-
-
 
 
 trialdata = 'AffectiveText.Semeval.2007/AffectiveText.trial/affectivetext_trial.xml'
@@ -109,6 +90,12 @@ with open(trialemo, 'r') as f, open(trialvalence, 'r') as g:
         target.write('\n')
         i += 1
 target.close()
-M, D = feature()
+
+#driver code
+M, D, Terms = feature()
 y = [t[6] for t in D]
-train(M, 6, y)
+train(M, y)
+test.dataset()
+V_t,D_t = test.feature(Terms)
+y = [t[6] for t in D_t]
+test.predict(V_t,y)
