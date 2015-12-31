@@ -1,36 +1,35 @@
 import csv
 import untangle as xml
 import numpy as np
-import lsa
 import re
 import svmutil
 
 
-def feature(terms):
-    dataMatrix = np.genfromtxt(finaltest, delimiter='|', dtype=None, skip_header=True)
+def feature(terms, U):
+    dataMatrix = np.genfromtxt(finaltrial, delimiter='|', dtype=None, skip_header=True)
     n = dataMatrix.size
     l = len(terms)
-    occurence = np.zeros((l, n), dtype=np.int)
+    occurence = np.zeros((n, l), dtype=np.int)
     d = 0
     for row in dataMatrix:
         temp = row[0].lower().decode('UTF-8').split(' ')
         for i in range(l):
             if terms[i] in temp:
-                occurence[i][d] = 1
+                occurence[d][i] = 1
         d += 1
 
-    p = [i for i, e in enumerate(occurence[0]) if e != 0]
-    U_, V_ = lsa.compute(occurence, 100)
-    V_ = np.transpose(V_)
-    return V_, dataMatrix
+    occurence = np.array([np.dot(o, U) for o in occurence])
+    print(occurence.shape)
+
+    return occurence, dataMatrix
 
 
 def dataset():
-    obj = xml.parse(testdata)
-    target = open(finaltest, 'w')
+    obj = xml.parse(trialdata)
+    target = open(finaltrial, 'w')
     target.write('A\tanger\tdisgust\tfear\tjoy\tsadness\tsurprise\tval')
     target.write('\n')
-    with open(testemo, 'r') as f, open(testvalence, 'r') as g:
+    with open(trialemo, 'r') as f, open(trialvalence, 'r') as g:
         r = csv.reader(f, delimiter=' ')
         s = csv.reader(g, delimiter=' ')
         i = 0
@@ -46,14 +45,19 @@ def dataset():
 
 def predict(V, yy):
     m = svmutil.svm_load_model('sample.model')
-    x = ([list(map(lambda z: z * 10000, list(t))) for t in V])
-    y = [1 if t > 0 else 0 for t in yy]
+    x = ([list(map(lambda z: z * 100, list(t))) for t in V])
+    #y = [1 if t > 0 else 0 for t in yy]
+    p_label, p_acc, p_val = svmutil.svm_predict(yy, x, m)
+    print(yy)
+    print(p_val)
 
-    p_label, p_acc, p_val = svmutil.svm_predict(y, x, m, '')
-    print(p_label)
 
 
+trialdata = 'AffectiveText.Semeval.2007/AffectiveText.trial/affectivetext_trial.xml'
+trialvalence = 'AffectiveText.Semeval.2007/AffectiveText.trial/affectivetext_trial.valence.gold'
 testdata = 'AffectiveText.Semeval.2007/AffectiveText.test/affectivetext_test.xml'
+trialemo = 'AffectiveText.Semeval.2007/AffectiveText.trial/affectivetext_trial.emotions.gold'
 testemo = 'AffectiveText.Semeval.2007/AffectiveText.test/affectivetext_test.emotions.gold'
 testvalence = 'AffectiveText.Semeval.2007/AffectiveText.test/affectivetext_test.valence.gold'
+finaltrial = 'AffectiveText.Semeval.2007/AffectiveText.trial/finalTrial.txt'
 finaltest = 'AffectiveText.Semeval.2007/AffectiveText.test/finalTest.txt'

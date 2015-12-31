@@ -1,11 +1,12 @@
 import csv
+import re
 import urllib.request as get
 
 import numpy as np
 import untangle as xml
 
 import lsa
-import svmutil
+import svmutil,svm
 import test
 
 
@@ -30,13 +31,11 @@ def feature():
         temp = row[0].decode('UTF-8').split(' ')
         for i in range(l):
             if terms[i] in temp:
-                occurence[i][d] = 1
+                occurence[i][d] = 1500
         d += 1
-
-    p = [i for i, e in enumerate(occurence[0]) if e != 0]
-    U_, V_ = lsa.compute(occurence, 100)
+    U_, V_ = lsa.compute(occurence, 10)
     V_ = np.transpose(V_)
-    return V_, dataMatrix, terms
+    return U_, V_, dataMatrix, terms
 
 
 def train(V, yy):
@@ -55,16 +54,16 @@ def train(V, yy):
     # for i in range(1000):
     #     sess.run(train_step, feed_dict={x: V, y_: yy})
 
-    x = ([list(map(lambda z: z * 10000, list(t))) for t in V])
-    y = [1 if t > 0 else 0 for t in yy]
-
-    print(x[0])
-    prob = svmutil.svm_problem(y, x)
-    param = svmutil.svm_parameter('-e 0.01')
+    x = ([list(map(lambda z: z * 100, list(t))) for t in V])
+    #y = [1 if t > 0 else 0 for t in yy]
+    prob = svmutil.svm_problem(yy, x)
+    param = svmutil.svm_parameter('-s 3 -t 3 -b 1')
     m = svmutil.svm_train(prob, param)
     svmutil.svm_save_model('sample.model', m)
-    # p_label, p_acc, p_val = svmutil.svm_predict(y, x, m, '')
-    # print(len(y))
+
+    # p_label, p_acc, p_val = svmutil.svm_predict(yy, x, m)
+    # print(yy)
+    # print(p_val)
     return m
 
 
@@ -85,17 +84,20 @@ with open(trialemo, 'r') as f, open(trialvalence, 'r') as g:
     s = csv.reader(g, delimiter=' ')
     i = 0
     for row, row1 in zip(r, s):
-        str = [obj.corpus.instance[i].cdata, row[1], row[2], row[3], row[4], row[5], row[6], row1[1]]
+        temp = obj.corpus.instance[i].cdata
+        temp = re.sub(r'[^\w]', ' ', temp)
+        str = [temp, row[1], row[2], row[3], row[4], row[5], row[6], row1[1]]
         target.write('\t'.join(str))
         target.write('\n')
         i += 1
 target.close()
 
-#driver code
-M, D, Terms = feature()
-y = [t[6] for t in D]
-train(M, y)
+# driver code
+U, V, D, Terms = feature()
+y1 = [t[6] for t in D]
+train(V, y1)
+
 test.dataset()
-V_t,D_t = test.feature(Terms)
-y = [t[6] for t in D_t]
-test.predict(V_t,y)
+V_t, D_t = test.feature(Terms, U)
+y2 = [t[6] for t in D_t]
+test.predict(V_t, y2)

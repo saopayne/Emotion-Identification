@@ -11,7 +11,7 @@ def compute(a, r):
 
 #Usage:
 
-# a = np.genfromtxt('mat.txt', delimiter=' ')
-# U_, V_ = compute(a, 2)
-# print(U_)
-# print(V_)
+a = np.genfromtxt('mat.txt', delimiter=' ')
+U_, V_ = compute(a, 2)
+print(U_)
+print(V_)
