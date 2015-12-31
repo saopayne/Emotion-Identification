@@ -45,10 +45,10 @@ def dataset():
 
 def predict(V, yy):
     m = svmutil.svm_load_model('sample.model')
-    x = ([list(map(lambda z: z * 100, list(t))) for t in V])
-    #y = [1 if t > 0 else 0 for t in yy]
-    p_label, p_acc, p_val = svmutil.svm_predict(yy, x, m)
-    print(yy)
+    x = ([list(map(lambda z: z * 10, list(t))) for t in V])
+    y = [t + 100 for t in yy]
+    p_label, p_acc, p_val = svmutil.svm_predict(y, x, m)
+    print(y)
     print(p_val)
 
 

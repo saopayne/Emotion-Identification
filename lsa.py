@@ -1,8 +1,8 @@
 import numpy as np
-
+from sklearn.feature_extraction.text import TfidfTransformer
 
 def compute(a, r):
-    U, s, V = np.linalg.svd(a, full_matrices=False)
+    U, s, V = np.linalg.svd(a)
     S = np.diag(s)
     S = S[:r, :r]
     U = U[:, [i for i in range(r)]]
@@ -12,6 +12,10 @@ def compute(a, r):
 #Usage:
 
 a = np.genfromtxt('mat.txt', delimiter=' ')
-U_, V_ = compute(a, 2)
-print(U_)
-print(V_)
+transformer = TfidfTransformer()
+tfdif = transformer.fit_transform(a)
+a = tfdif.toarray()
+U_, V_ = compute(a,3)
+# print(U_)
+# print(V_)
+
