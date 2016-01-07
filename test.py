@@ -2,11 +2,14 @@ import csv
 import untangle as xml
 import numpy as np
 import re
+
+from sklearn.feature_extraction.text import TfidfTransformer
+
 import svmutil
 
 
-def feature(terms, U):
-    dataMatrix = np.genfromtxt(finaltrial, delimiter='|', dtype=None, skip_header=True)
+def feature(terms):
+    dataMatrix = np.genfromtxt(finaltest, delimiter='|', dtype=None, skip_header=True)
     n = dataMatrix.size
     l = len(terms)
     occurence = np.zeros((n, l), dtype=np.int)
@@ -15,21 +18,22 @@ def feature(terms, U):
         temp = row[0].lower().decode('UTF-8').split(' ')
         for i in range(l):
             if terms[i] in temp:
-                occurence[d][i] = 1
+                occurence[d][i] += 1
         d += 1
-
-    occurence = np.array([np.dot(o, U) for o in occurence])
-    print(occurence.shape)
+    transformer = TfidfTransformer()
+    tfdif = transformer.fit_transform(occurence)
+    occurence = tfdif.toarray()
+    np.savetxt('occurencetest.csv',occurence,delimiter=',')
 
     return occurence, dataMatrix
 
 
 def dataset():
-    obj = xml.parse(trialdata)
-    target = open(finaltrial, 'w')
+    obj = xml.parse(testdata)
+    target = open(finaltest, 'w')
     target.write('A\tanger\tdisgust\tfear\tjoy\tsadness\tsurprise\tval')
     target.write('\n')
-    with open(trialemo, 'r') as f, open(trialvalence, 'r') as g:
+    with open(testemo, 'r') as f, open(testvalence, 'r') as g:
         r = csv.reader(f, delimiter=' ')
         s = csv.reader(g, delimiter=' ')
         i = 0
@@ -46,12 +50,11 @@ def dataset():
 def predict(V, yy):
     m = svmutil.svm_load_model('sample.model')
     x = ([list(map(lambda z: z * 10, list(t))) for t in V])
-    y = [t + 100 for t in yy]
+    y = [0 if t < 0 else 1 for t in yy]
     p_label, p_acc, p_val = svmutil.svm_predict(y, x, m)
     print(y)
-    print(p_val)
-
-
+    print(p_label)
+    print(x[10])
 
 trialdata = 'AffectiveText.Semeval.2007/AffectiveText.trial/affectivetext_trial.xml'
 trialvalence = 'AffectiveText.Semeval.2007/AffectiveText.trial/affectivetext_trial.valence.gold'

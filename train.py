@@ -1,13 +1,16 @@
 import csv
 import re
 import urllib.request as get
-
+import tensorflow as tf
 import numpy as np
 import untangle as xml
 from sklearn.feature_extraction.text import TfidfTransformer
 import lsa
 import svmutil, svm
 import test
+import data as d
+import tensorflow_train as tftrain
+import tensorflow_predict as tfpredict
 
 termcount = {}
 
@@ -24,7 +27,7 @@ def tfidf(temp):
 
 def feature():
     global termcount
-    dataMatrix = np.genfromtxt(finaltrial, delimiter='\t', dtype=None, skip_header=True)
+    dataMatrix = np.genfromtxt(finaltrial, delimiter='|', dtype=None, skip_header=True)
     terms = []
     n = dataMatrix.size
     for row in dataMatrix:
@@ -36,55 +39,28 @@ def feature():
         tfidf(temp)
     s = sum(list(termcount.values()))
     termcount = {x: (y * 100 / s) for x, y in zip(termcount.keys(), termcount.values())}
-    terms.extend([x for x in termcount.keys() if 0.3 <= termcount[x] <= 2])
+    # terms.extend([x for x in termcount.keys()])
     terms = list(set(terms))
-    print(len(terms))
     stop = open('stop.csv', 'r').read().splitlines()
     terms = [x for x in terms if x not in stop]
     l = len(terms)
-    occurence = np.zeros((l, n), dtype=np.int)
+    occurence = np.zeros((n, l), dtype=np.int)
     d = 0
     for row in dataMatrix:
         temp = row[0].decode('UTF-8').split(' ')
         for i in range(l):
             if terms[i] in temp:
-                occurence[i][d] = 1
+                occurence[d][i] += 1
         d += 1
     transformer = TfidfTransformer()
     tfdif = transformer.fit_transform(occurence)
     occurence = tfdif.toarray()
-    U_, V_ = lsa.compute(occurence, 175)
-    V_ = np.transpose(V_)
-    return U_, V_, dataMatrix, terms
 
 
-def train(V, yy):
-    # n = V.shape[1]
-    # x = tf.placeholder(tf.float32,[None,n])
-    # W = tf.Variable(tf.zeros([n, c]))
-    # b = tf.Variable(tf.zeros([c]))
-    # y = tf.nn.softmax(tf.matmul(x,W)+b)
-    # y_ = tf.placeholder(tf.float32, [None, c])
-    # cross_entropy = -tf.reduce_sum(y_*tf.log(y))
-    # train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
-    # init = tf.initialize_all_variables()
-    # sess = tf.Session()
-    # sess.run(init)
-    # sess.run
-    # for i in range(1000):
-    #     sess.run(train_step, feed_dict={x: V, y_: yy})
+    np.savetxt('occurence.csv',occurence,delimiter=',')
+    return occurence, dataMatrix, terms
 
-    x = ([list(map(lambda z: z * 10, list(t))) for t in V])
-    y = [t + 100 for t in yy]
-    prob = svmutil.svm_problem(y, x)
-    param = svmutil.svm_parameter('-s 3 -b 1')
-    m = svmutil.svm_train(prob, param)
-    svmutil.svm_save_model('sample.model', m)
 
-    # p_label, p_acc, p_val = svmutil.svm_predict(yy, x, m)
-    # print(yy)
-    # print(p_val)
-    return m
 
 
 trialdata = 'AffectiveText.Semeval.2007/AffectiveText.trial/affectivetext_trial.xml'
@@ -107,16 +83,16 @@ with open(trialemo, 'r') as f, open(trialvalence, 'r') as g:
         temp = obj.corpus.instance[i].cdata
         temp = re.sub(r'[^\w]', ' ', temp)
         str = [temp, row[1], row[2], row[3], row[4], row[5], row[6], row1[1]]
-        target.write('\t'.join(str))
+        target.write('|'.join(str))
         target.write('\n')
         i += 1
 target.close()
 
 # driver code
-U, V, D, Terms = feature()
-y1 = [t[7] for t in D]
-train(V, y1)
+V, D , Terms = feature()
+y = [0 if t[3] < 25 else 1 if 25 <= t[3] < 50 else 2 if 50 <= t[3] < 75 else 3 for t in D]
+# tftrain.train(V,y,303,4)
 test.dataset()
-V_t, D_t = test.feature(Terms, U)
-y2 = [t[7] for t in D_t]
-test.predict(V_t, y2)
+V, D = test.feature(Terms)
+y = [0 if t[3] < 25 else 1 if 25 <= t[3] < 50 else 2 if 50 <= t[3] < 75 else 3 for t in D]
+tfpredict.predict(V, y, 303, 4)
