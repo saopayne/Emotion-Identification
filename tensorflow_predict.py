@@ -2,9 +2,20 @@ import tensorflow as tf
 import numpy as np
 import data as d
 from collections import Counter
+import copy
 
 n = 40
 c = 5
+def display(actual, predicted):
+    r = dict.fromkeys(set(actual), 0)
+    n = copy.deepcopy(r)
+    for x, y in zip(actual, predicted):
+        if x == y:
+            r[x] += 1
+        n[x] += 1
+    print(r,n)
+
+
 def predict(data,labels,n,c):
     x = tf.placeholder(tf.float32, [None, n])
     W = tf.Variable(tf.zeros([n, c]))
@@ -17,11 +28,10 @@ def predict(data,labels,n,c):
     sess = tf.Session()
     saver.restore(sess,'model.ckpt')
 
-
     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
     a, b = data, d.one_hot(labels)
     actual = (sess.run(tf.argmax(y_,1),feed_dict = {y_ : b}))
     predicted = (sess.run(tf.argmax(y,1),feed_dict = {x : a, y_ : b}))
-    print(Counter([0 if a == 0 and a == b else 1 if a == 1 and a == b else 2 if a == b and a == 2 else -1 for a,b in zip(actual,predicted)]))
+    display(actual,predicted)
     print('Accuracy = ', sess.run(accuracy, feed_dict={x: a, y_: b}))

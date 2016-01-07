@@ -24,7 +24,6 @@ def tfidf(temp):
             termcount[t] = 1
     return termcount
 
-
 def feature():
     global termcount
     dataMatrix = np.genfromtxt(finaltrial, delimiter='|', dtype=None, skip_header=True)
@@ -39,7 +38,7 @@ def feature():
         tfidf(temp)
     s = sum(list(termcount.values()))
     termcount = {x: (y * 100 / s) for x, y in zip(termcount.keys(), termcount.values())}
-    terms.extend([x for x in termcount.keys()])
+    # terms.extend([x for x in termcount.keys()])
     terms = list(set(terms))
     stop = open('stop.csv', 'r').read().splitlines()
     terms = [x for x in terms if x not in stop]
@@ -71,11 +70,11 @@ testemo = 'AffectiveText.Semeval.2007/AffectiveText.test/affectivetext_test.emot
 testvalence = 'AffectiveText.Semeval.2007/AffectiveText.test/affectivetext_test.valence.gold'
 finaltrial = 'AffectiveText.Semeval.2007/AffectiveText.trial/finalTrial.txt'
 finaltest = 'AffectiveText.Semeval.2007/AffectiveText.test/finalTest.txt'
-obj = xml.parse(trialdata)
-target = open(finaltrial, 'w')
+obj = xml.parse(testdata)
+target = open(finaltest, 'w')
 target.write('A\tanger\tdisgust\tfear\tjoy\tsadness\tsurprise\tval')
 target.write('\n')
-with open(trialemo, 'r') as f, open(trialvalence, 'r') as g:
+with open(testemo, 'r') as f, open(testvalence, 'r') as g:
     r = csv.reader(f, delimiter=' ')
     s = csv.reader(g, delimiter=' ')
     i = 0
@@ -91,8 +90,8 @@ target.close()
 # driver code
 V, D , Terms = feature()
 y = [0 if -100 <= t[7] <= -50 else 1 if -50 < t[7] < 50 else 2 for t in D]
-# tftrain.train(V,y,952,3)
-test.dataset()
-V, D = test.feature(Terms)
+# tftrain.train(V,y,306,3)
+# test.dataset()
+# V, D = test.feature(Terms)
 y = [0 if -100 <= t[7] <= -50 else 1 if -50 < t[7] < 50 else 2 for t in D]
-tfpredict.predict(V, y, 952, 3)
+tfpredict.predict(V, y, 306, 3)
