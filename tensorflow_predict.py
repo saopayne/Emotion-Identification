@@ -33,5 +33,7 @@ def predict(data,labels,n,c):
     a, b = data, d.one_hot(labels)
     actual = (sess.run(tf.argmax(y_,1),feed_dict = {y_ : b}))
     predicted = (sess.run(tf.argmax(y,1),feed_dict = {x : a, y_ : b}))
+    # print(predicted)
+    # print(actual)
     display(actual,predicted)
     print('Accuracy = ', sess.run(accuracy, feed_dict={x: a, y_: b}))

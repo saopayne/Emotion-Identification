@@ -17,7 +17,7 @@ def train(data,labels,n,c):
     sess = tf.Session()
     saver = tf.train.Saver()
     sess.run(init)
-    for i in range(3000):
+    for i in range(5000):
       batch_xs, batch_ys = d.train_batch_data(data,labels,100)
       sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
     saver.save(sess,'model.ckpt')

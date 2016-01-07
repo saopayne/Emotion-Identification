@@ -70,11 +70,11 @@ testemo = 'AffectiveText.Semeval.2007/AffectiveText.test/affectivetext_test.emot
 testvalence = 'AffectiveText.Semeval.2007/AffectiveText.test/affectivetext_test.valence.gold'
 finaltrial = 'AffectiveText.Semeval.2007/AffectiveText.trial/finalTrial.txt'
 finaltest = 'AffectiveText.Semeval.2007/AffectiveText.test/finalTest.txt'
-obj = xml.parse(testdata)
-target = open(finaltest, 'w')
+obj = xml.parse(trialdata)
+target = open(finaltrial, 'w')
 target.write('A\tanger\tdisgust\tfear\tjoy\tsadness\tsurprise\tval')
 target.write('\n')
-with open(testemo, 'r') as f, open(testvalence, 'r') as g:
+with open(trialemo, 'r') as f, open(trialvalence, 'r') as g:
     r = csv.reader(f, delimiter=' ')
     s = csv.reader(g, delimiter=' ')
     i = 0
@@ -89,9 +89,9 @@ target.close()
 
 # driver code
 V, D , Terms = feature()
-y = [0 if -100 <= t[7] <= -50 else 1 if -50 < t[7] < 50 else 2 for t in D]
-# tftrain.train(V,y,306,3)
-# test.dataset()
-# V, D = test.feature(Terms)
-y = [0 if -100 <= t[7] <= -50 else 1 if -50 < t[7] < 50 else 2 for t in D]
-tfpredict.predict(V, y, 306, 3)
+y = [0 if t[3] <= 50 else 1 for t in D]
+# tftrain.train(V,y,303,2)
+test.dataset()
+V, D = test.feature(Terms)
+y = [0 if t[3] <= 50 else 1 for t in D]
+tfpredict.predict(V, y, 303, 2)
