@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import data as d
+from collections import Counter
 
 n = 40
 c = 5
@@ -22,6 +23,5 @@ def predict(data,labels,n,c):
     a, b = data, d.one_hot(labels)
     actual = (sess.run(tf.argmax(y_,1),feed_dict = {y_ : b}))
     predicted = (sess.run(tf.argmax(y,1),feed_dict = {x : a, y_ : b}))
-    print(actual)
-    print(predicted)
-    print(sess.run(accuracy, feed_dict={x: a, y_: b}))
+    print(Counter([0 if a == 0 and a == b else 1 if a == 1 and a == b else 2 if a == b and a == 2 else -1 for a,b in zip(actual,predicted)]))
+    print('Accuracy = ', sess.run(accuracy, feed_dict={x: a, y_: b}))

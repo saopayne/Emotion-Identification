@@ -11,7 +11,7 @@ import test
 import data as d
 import tensorflow_train as tftrain
 import tensorflow_predict as tfpredict
-
+from collections import Counter
 termcount = {}
 
 def tfidf(temp):
@@ -39,7 +39,7 @@ def feature():
         tfidf(temp)
     s = sum(list(termcount.values()))
     termcount = {x: (y * 100 / s) for x, y in zip(termcount.keys(), termcount.values())}
-    # terms.extend([x for x in termcount.keys()])
+    terms.extend([x for x in termcount.keys()])
     terms = list(set(terms))
     stop = open('stop.csv', 'r').read().splitlines()
     terms = [x for x in terms if x not in stop]
@@ -90,9 +90,9 @@ target.close()
 
 # driver code
 V, D , Terms = feature()
-y = [0 if t[3] < 25 else 1 if 25 <= t[3] < 50 else 2 if 50 <= t[3] < 75 else 3 for t in D]
-# tftrain.train(V,y,303,4)
+y = [0 if -100 <= t[7] <= -50 else 1 if -50 < t[7] < 50 else 2 for t in D]
+# tftrain.train(V,y,952,3)
 test.dataset()
 V, D = test.feature(Terms)
-y = [0 if t[3] < 25 else 1 if 25 <= t[3] < 50 else 2 if 50 <= t[3] < 75 else 3 for t in D]
-tfpredict.predict(V, y, 303, 4)
+y = [0 if -100 <= t[7] <= -50 else 1 if -50 < t[7] < 50 else 2 for t in D]
+tfpredict.predict(V, y, 952, 3)

@@ -11,7 +11,7 @@ def train(data,labels,n,c):
     b = tf.Variable(tf.zeros([c]))
     y = tf.nn.softmax(tf.matmul(x, W) + b)
     y_ = tf.placeholder(tf.float32, [None, c])
-    cross_entropy = -tf.reduce_sum(y_*tf.log(y))
+    cross_entropy = -tf.reduce_sum(y_*tf.log(y) + (1 - y_)*tf.log(1 - y))
     train_step = tf.train.GradientDescentOptimizer(0.001).minimize(cross_entropy)
     init = tf.initialize_all_variables()
     sess = tf.Session()
