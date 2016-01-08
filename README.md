@@ -1,4 +1,4 @@
-# Emotion & Sentiment Analysis
+# Emotion Identification
 
 It is an emotion identification project that tries to identify emotions from text namely : anger, disgust,
 fear, sadness, joy, surprise. 
