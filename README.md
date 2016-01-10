@@ -20,7 +20,7 @@ Will be enhanced for coarse grained evaluation where it may be possible to tell 
 
 For each emotion, false positives are currently high (will be improved).
 
-# Rough desciption of working : 
+## Rough desciption of working : 
 
 Every sentence is passed through a POS-tagger.
 
@@ -32,7 +32,7 @@ The occurence matrix is then trained using softmax regression of Tensorflow.
 
 Sentences are classified with fine-grained evaluation.
 
-#Discussion : 
+## Discussion : 
 Lots of false positives. Feature selection needs to be improved. Dimensionality needs to be reduced.
 
 True positive is high. 
