@@ -3,9 +3,6 @@
 It is an emotion identification project that tries to identify emotions from text namely : anger, disgust,
 fear, sadness, joy, surprise. 
 
-Some notable works had been done on classifying sentences based on emotions. But this one is ambitious. It assumes that a sentence can
-be a mix of emotions.
-
 
 Currently fine grained evaluations are being done i.e. each of the emotion classes are further subdivided
 into high or low, eg. high anger / low anger.
