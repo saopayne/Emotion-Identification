@@ -19,3 +19,22 @@ Fined grained classification treats [0,50) as low and [50,100] as high.
 Will be enhanced for coarse grained evaluation where it may be possible to tell the quantity of emotion.
 
 For each emotion, false positives are currently high (will be improved).
+
+# Rough desciption of working : 
+
+Every sentence is passed through a POS-tagger.
+
+Only adjectives are taken as features.
+
+TF-IDF scores are applied for each feature and occurence matrix is created.
+
+The occurence matrix is then trained using softmax regression of Tensorflow.
+
+Sentences are classified with fine-grained evaluation.
+
+#Discussion : 
+Lots of false positives. Feature selection needs to be improved. Dimensionality needs to be reduced.
+
+True positive is high. 
+
+Coarse grained classification is to be done.
